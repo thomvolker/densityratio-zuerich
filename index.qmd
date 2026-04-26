@@ -1,0 +1,46 @@
+---
+title: "`densityratio`"
+subtitle: "An `R`-package for distribution comparison  "
+author: 
+  - name: Thom Benjamin Volker
+    affiliation: Utrecht University \& Statistics Netherlands
+    email: t.b.volker@uu.nl
+    url: https://thomvolker.github.io
+format:
+  revealjs:
+    theme: theme.scss
+    logo: universiteit-utrecht-logo.png
+    incremental: false
+    slide-number: true
+---
+
+
+## About me
+
+::: {.columns}
+:::: {.column width="60%"}
+Thom Benjamin Volker
+
+- Utrecht University \& Statistics Netherlands
+- PhD. Candidate in Methodology and Statistics
+::::
+
+:::: {.column width="5%"}
+<br>
+::::
+
+:::: {.column width="25%"}
+![](me_bike.jpg){style="border-radius:30px; overflow:hidden; border:2px solid #12244d"}
+::::
+
+:::
+
+__Research interests__: methods to enhance _data privacy_, _synthetic data_ and multiple imputation of _missing data_.
+
+
+# Questions / comments?
+
+Feel free to reach out: [t.b.volker@uu.nl](mailto:t.b.volker@uu.nl)
+
+Slides: [https://github.com/thomvolker/densityratio-zuerich/](https://github.com/thomvolker/densityratio-zuerich/)
+
