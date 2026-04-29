@@ -28,8 +28,74 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-cc99c017c7baa9d056cec91fa70ac8bc.css">
+  <link rel="stylesheet" href="index_files/libs/revealjs/dist/theme/quarto-8383133057dcfc6a277a845624ac07a5.css">
   <link href="index_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="index_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -160,6 +226,175 @@
 <p><img data-src="me_bike.jpg" style="border-radius:30px; overflow:hidden; border:2px solid #12244d"></p>
 </div></div>
 <p><strong>Research interests</strong>: methods to enhance <em>data privacy</em>, <em>synthetic data</em> and multiple imputation of <em>missing data</em>.</p>
+</section>
+<section id="density-ratio-estimation" class="slide level2">
+<h2>Density ratio estimation</h2>
+<p>Many statistical learning problems can be solved through a density ratio:</p>
+<p><span class="math display">\[
+r(x) = \frac{p_\text{nu}(x)}{p_\text{de}(x)}
+\]</span></p>
+<ul>
+<li><p>Reweighing: covariate shift / sample selection bias</p></li>
+<li><p>Anomaly detection</p></li>
+<li><p>Two-sample testing</p></li>
+<li><p>Classification</p></li>
+</ul>
+</section>
+<section id="estimating-the-density-ratio" class="slide level2">
+<h2>Estimating the density ratio</h2>
+<p>Divergence minimization (<a href="https://doi.org/10.1007/s10463-011-0343-8">Sugiyama et al.&nbsp;(2012)</a>)</p>
+<p><span class="math display">\[
+BR_f(r||\hat r) = \int \Big(
+    f(r(x)) - f(\hat r(x)) - f'(\hat r(x))(r(x) - \hat r(x))
+\Big) p_\text{de}(x) \text d x
+\]</span></p>
+<p>where <span class="math inline">\(f(t)\)</span> is a differentiable and strictly convex function with derivative <span class="math inline">\(f'(t)\)</span></p>
+<ul>
+<li>UKL: <span class="math inline">\(f(t) = t \log t - t\)</span>; Least-squares: <span class="math inline">\(f(t) = (t-1)^2/2\)</span>.</li>
+</ul>
+<p>And <span class="math inline">\(\hat r(x)\)</span> a model for the density ratio, typically linear and kernel-based; <span class="math inline">\(\hat r(x) = \psi(x) \theta\)</span>.</p>
+</section>
+<section id="section" class="slide level2" data-background-iframe="https://thomvolker.github.io/densityratio/">
+<h2></h2>
+</section>
+<section id="the-densityratio-r-package" class="slide level2">
+<h2>The <code>densityratio</code> R-package</h2>
+<p>Implements a suite of methods for density ratio estimation, with:</p>
+<ul>
+<li>A unified interface</li>
+<li>Automatic model selection through cross-validation (in parallel)</li>
+<li>Estimation in <code>C++</code></li>
+<li>Helper functions for two-sample testing and visualization</li>
+</ul>
+</section>
+<section id="example-1-covariate-shift" class="slide level2">
+<h2>Example 1: Covariate shift</h2>
+<p>Insurance data from U.S.</p>
+<ul>
+<li>Variables: age, sex, bmi, number of children, smoker, charges</li>
+<li>Training data: data from the south</li>
+<li>Deployment data: data from the north</li>
+</ul>
+<p><strong>Goal</strong>: Predict insurance charges in northern region from model trained on southern region</p>
+<ul>
+<li>Reweight loss by importance weights <span class="math inline">\(r(x) = \frac{p_\text{north}(x)}{p_\text{south}(x)}\)</span></li>
+</ul>
+</section>
+<section id="density-ratio-estimation-for-distribution-shift" class="slide level2">
+<h2>Density ratio estimation for distribution shift</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a>dr <span class="ot">&lt;-</span> <span class="fu">ulsif</span>(</span>
+<span id="cb1-2"><a href=""></a>    <span class="at">df_numerator =</span> north_x, </span>
+<span id="cb1-3"><a href=""></a>    <span class="at">df_denominator =</span> south_x, </span>
+<span id="cb1-4"><a href=""></a>    <span class="at">nsigma =</span> <span class="dv">20</span>, </span>
+<span id="cb1-5"><a href=""></a>    <span class="at">nlambda =</span> <span class="dv">20</span>, </span>
+<span id="cb1-6"><a href=""></a>    <span class="at">nthreads =</span> <span class="dv">10</span></span>
+<span id="cb1-7"><a href=""></a>)</span>
+<span id="cb1-8"><a href=""></a></span>
+<span id="cb1-9"><a href=""></a><span class="fu">summary</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+ulsif(df_numerator = north_x, df_denominator = south_x, nsigma = 20,     nlambda = 20, nthreads = 10)
+
+Kernel Information:
+  Kernel type: Gaussian with L2 norm distances
+  Number of kernels: 200
+
+Optimal sigma: 1.70575
+Optimal lambda: 0.6951928
+Optimal kernel weights: num [1:201] 0.0987 0.0305 0.0287 0.0283 0.0143 ...
+ 
+Pearson divergence between P(nu) and P(de): 0.1091
+For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
+</div>
+</div>
+</section>
+<section id="inspecting-the-density-ratio" class="slide level2">
+<h2>Inspecting the density ratio</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="index_files/figure-revealjs/dr-plot-1.png" width="960" class="r-stretch"></section>
+<section id="xgboost-prediction-with-importance-weights" class="slide level2">
+<h2>xgboost prediction with importance weights</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>weights <span class="ot">&lt;-</span> <span class="fu">predict</span>(dr, <span class="at">newdata =</span> south_x)</span>
+<span id="cb4-2"><a href=""></a></span>
+<span id="cb4-3"><a href=""></a>fit_cs <span class="ot">&lt;-</span> xgboost<span class="sc">::</span><span class="fu">xgboost</span>(</span>
+<span id="cb4-4"><a href=""></a>    <span class="at">x =</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>., south_x), </span>
+<span id="cb4-5"><a href=""></a>    <span class="at">y =</span> south<span class="sc">$</span>charges,</span>
+<span id="cb4-6"><a href=""></a>    <span class="at">weights =</span> <span class="fu">c</span>(weights)</span>
+<span id="cb4-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">South (train)</th>
+<th style="text-align: right;">North (test)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">RMSE Unweighted</td>
+<td style="text-align: right;">485.1462</td>
+<td style="text-align: right;">5564.169</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RMSE Weighted</td>
+<td style="text-align: right;">849.5623</td>
+<td style="text-align: right;">5437.412</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="example-2-two-sample-testing" class="slide level2">
+<h2>Example 2: Two sample testing</h2>
+<p>Colon data: 2000 gene expression measurements from 22 colon tumor tissues, and 40 non-tumor tissues.</p>
+<p><strong>Goal</strong>: Evaluate whether two groups have significantly different gene expression measurements.</p>
+<ul>
+<li>Exploit connection between DR estimation and divergence estimation between <span class="math inline">\(p_\text{nu}(x)\)</span> and <span class="math inline">\(p_\text{de}(x)\)</span>.</li>
+</ul>
+</section>
+<section id="density-ratio-estimation-with-dimension-reduction" class="slide level2">
+<h2>Density ratio estimation with dimension reduction</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>dr <span class="ot">&lt;-</span> <span class="fu">spectral</span>(colon, healthy)</span>
+<span id="cb5-2"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="index_files/figure-revealjs/spectral-1.png" width="960" class="r-stretch"></section>
+<section id="two-sample-testing-with-density-ratios" class="slide level2 smaller">
+<h2>Two-sample testing with density-ratios</h2>
+<p>Permutation test: compare observed divergence to distribution of null divergences under random reallocation</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">summary</span>(dr, <span class="at">test =</span> <span class="cn">TRUE</span>, <span class="at">cl =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+spectral(df_numerator = colon, df_denominator = healthy)
+
+Kernel Information:
+  Kernel type: Gaussian with L2 norm distances
+  Number of kernels: 40
+
+Optimal sigma: 110.8282
+Optimal subspace: 33
+Optimal kernel weights (cv): num [1:33] 1.05247 0.56802 0.00296 0.15847 -0.24053 ...
+ 
+Pearson divergence between P(nu) and P(de): 1.507
+Pr(P(nu)=P(de)) &lt; .001
+Bonferroni-corrected for testing with r(x) = P(nu)/P(de) AND r*(x) = P(de)/P(nu).</code></pre>
+</div>
+</div>
 </section>
 <section id="questions-comments" class="title-slide slide level1 center">
 <h1>Questions / comments?</h1>
@@ -383,6 +618,82 @@
         ]
       });
     </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

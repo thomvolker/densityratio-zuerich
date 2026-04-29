@@ -37,6 +37,183 @@ Thom Benjamin Volker
 
 __Research interests__: methods to enhance _data privacy_, _synthetic data_ and multiple imputation of _missing data_.
 
+## Density ratio estimation
+
+Many statistical learning problems can be solved through a density ratio:
+
+$$
+r(x) = \frac{p_\text{nu}(x)}{p_\text{de}(x)}
+$$
+
+- Reweighing: covariate shift / sample selection bias
+
+- Anomaly detection
+
+- Two-sample testing
+
+- Classification
+
+## Estimating the density ratio
+
+Divergence minimization ([Sugiyama et al. (2012)](https://doi.org/10.1007/s10463-011-0343-8))
+
+$$
+BR_f(r||\hat r) = \int \Big(
+    f(r(x)) - f(\hat r(x)) - f'(\hat r(x))(r(x) - \hat r(x))
+\Big) p_\text{de}(x) \text d x
+$$
+
+where $f(t)$ is a differentiable and strictly convex function with derivative $f'(t)$
+
+- UKL: $f(t) = t \log t - t$; Least-squares: $f(t) = (t-1)^2/2$.
+
+And $\hat r(x)$ a model for the density ratio, typically linear and kernel-based; $\hat r(x) = \psi(x) \theta$.
+
+## {background-iframe="https://thomvolker.github.io/densityratio/"}
+
+## The `densityratio` R-package
+
+Implements a suite of methods for density ratio estimation, with:
+
+- A unified interface
+- Automatic model selection through cross-validation (in parallel)
+- Estimation in `C++`
+- Helper functions for two-sample testing and visualization
+
+## Example 1: Covariate shift
+
+```{r}
+#| label: preliminaries
+#| echo: false
+
+library(densityratio)
+set.seed(123)
+idx <- insurance$region %in% c("southwest", "southeast")
+data <- subset(insurance, select = -region)
+
+south <- subset(data, subset = idx)
+south_x <- subset(south, select = -charges)
+north <- subset(data, subset = !idx)
+north_x <- subset(north, select = -charges)
+```
+
+Insurance data from U.S.
+
+- Variables: age, sex, bmi, number of children, smoker, charges
+- Training data: data from the south
+- Deployment data: data from the north
+
+__Goal__: Predict insurance charges in northern region from model trained on southern region
+
+- Reweight loss by importance weights $r(x) = \frac{p_\text{north}(x)}{p_\text{south}(x)}$
+
+## Density ratio estimation for distribution shift
+
+```{r}
+#| label: dr-estimation
+#| echo: true
+
+
+dr <- ulsif(
+    df_numerator = north_x, 
+    df_denominator = south_x, 
+    nsigma = 20, 
+    nlambda = 20, 
+    nthreads = 10
+)
+
+summary(dr)
+```
+
+## Inspecting the density ratio
+
+```{r}
+#| label: dr-plot
+#| echo: true
+
+plot(dr)
+```
+
+## xgboost prediction with importance weights
+
+
+
+```{r}
+#| label: get-weights
+#| echo: true
+
+weights <- predict(dr, newdata = south_x)
+
+fit_cs <- xgboost::xgboost(
+    x = model.matrix(~., south_x), 
+    y = south$charges,
+    weights = c(weights)
+)
+```
+
+:::{.fragment}
+```{r}
+
+fit <- xgboost::xgboost(
+    x = model.matrix(~., south_x), 
+    y = south$charges
+)
+
+mse_unw_south <- mean((south$charges - predict(fit, newdata = model.matrix(~.,south_x)))^2)
+mse_w_south <- mean((south$charges - predict(fit_cs, newdata = model.matrix(~.,south_x)))^2)
+
+mse_unw_north <- mean((north$charges - predict(fit, newdata = model.matrix(~.,north_x)))^2)
+mse_w_north <- mean((north$charges - predict(fit_cs, newdata = model.matrix(~.,north_x)))^2)
+
+tibble::tibble(
+    " " = c("RMSE Unweighted", "RMSE Weighted"),
+    "South (train)" = c(
+        sqrt(mse_unw_south), sqrt(mse_w_south)
+    ),
+    "North (test)" = c(
+        sqrt(mse_unw_north), sqrt(mse_w_north)
+    )
+) |> knitr::kable()
+```
+
+:::
+
+## Example 2: Two sample testing
+
+Colon data: 2000 gene expression measurements from 22 colon tumor tissues, and 40 non-tumor tissues.
+
+__Goal__: Evaluate whether two groups have significantly different gene expression measurements.
+
+- Exploit connection between DR estimation and divergence estimation between $p_\text{nu}(x)$ and $p_\text{de}(x)$.
+
+
+```{r}
+colon <- subset(densityratio::colon, class == "tumor", select = -class)
+healthy <- subset(densityratio::colon, class == "normal", select = -class)
+```
+
+## Density ratio estimation with dimension reduction
+
+```{r}
+#| label: spectral
+#| echo: true
+dr <- spectral(colon, healthy)
+plot(dr)
+```
+
+## Two-sample testing with density-ratios {.smaller}
+
+Permutation test: compare observed divergence to distribution of null divergences under random reallocation
+
+```{r}
+#| label: test-two-sample
+#| echo: true
+#| cache: true
+
+
+summary(dr, test = TRUE, cl = 12)
+```
+
 
 # Questions / comments?
 
