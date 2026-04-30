@@ -53,7 +53,96 @@ $$
 
 - Classification
 
-## Estimating the density ratio
+##
+
+<br>
+
+```{r}
+#| label: dr-example
+#| echo: false
+#| cache: true
+
+set.seed(1)
+library(ggplot2)
+library(patchwork)
+
+dbinorm <- function(x, p, dif) {
+  p * dnorm(x, 0, 1) + (1 - p) * dnorm(x, dif, 1)
+}
+
+dratio <- function(x, p, dif, mu, sd) {
+  dbinorm(x, p, dif) / dnorm(x, mu, sd)
+}
+
+fit <- densityratio::ulsif(
+  df_numerator = densityratio::numerator_data$x5,
+  df_denominator = densityratio::denominator_data$x5,
+  centers = c(densityratio::numerator_data$x5, densityratio::denominator_data$x5)[sample(2000, 500)],
+  parallel = TRUE,
+  nthreads = 18
+)
+
+ggplot() +
+  stat_function(aes(col = factor(1, labels = "italic(P[n](x))")),
+    fun = dbinorm, args = list(p = 0.4, dif = 3),
+    linewidth = 1
+  ) +
+  stat_function(aes(col = factor(2, labels = "italic(P[d](x))")),
+    fun = dnorm, args = list(mean = 3, sd = 2),
+    linewidth = 1
+  ) +
+  xlim(-5, 8.6) +
+  scale_color_manual(
+    name = NULL,
+    values = c("#93effa", "#034e57"),
+    labels = scales::parse_format()
+  ) +
+  theme_classic() +
+  hexSticker::theme_transparent() +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.9, 0.9),
+    panel.background = element_rect(fill = "#fffbf2"),
+    plot.background = element_rect(fill = "#fffbf2")
+  ) +
+  xlab(expression(italic(x))) +
+  ylab(NULL) +
+  ggplot() +
+  stat_function(aes(col = "italic(r(x))"),
+    fun = dratio, args = list(p = 0.4, dif = 3, mu = 3, sd = 2),
+    size = 1
+  ) +
+  geom_line(
+    aes(
+      x = seq(-5, 8.6, length.out = 100),
+      y = predict(fit, seq(-5, 8.6, length.out = 100)),
+      col = "italic(hat(r)(x))"
+    ),
+    size = 1
+  ) +
+  xlim(-5, 8.6) +
+  theme_classic() +
+  hexSticker::theme_transparent() +
+  scale_color_manual(
+    name = NULL,
+    values = c("pink", "#de0277"),
+    labels = scales::parse_format()
+  ) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(0.9, 0.9),
+    panel.background = element_rect(fill = "#fffbf2"),
+    plot.background = element_rect(fill = "#fffbf2")
+  ) +
+  xlab(expression(italic(x))) +
+  ylab(NULL) &
+  theme(
+    panel.background = element_rect(fill = "#fffbf2"),
+    plot.background = element_rect(fill = "#fffbf2")
+  )
+```
+
+## Estimating the density ratio {.smaller}
 
 Divergence minimization ([Sugiyama et al. (2012)](https://doi.org/10.1007/s10463-011-0343-8))
 
@@ -63,13 +152,13 @@ BR_f(r||\hat r) = \int \Big(
 \Big) p_\text{de}(x) \text d x
 $$
 
-where $f(t)$ is a differentiable and strictly convex function with derivative $f'(t)$
+where $f(t)$ is differentiable, strictly convex with derivative $f'(t)$
 
-- UKL: $f(t) = t \log t - t$; Least-squares: $f(t) = (t-1)^2/2$.
+- UKL: $f(t) = t \log t - t$; least-squares: $f(t) = (t-1)^2/2$.
 
 And $\hat r(x)$ a model for the density ratio, typically linear and kernel-based; $\hat r(x) = \psi(x) \theta$.
 
-## {background-iframe="https://thomvolker.github.io/densityratio/"}
+Optionally, a regularization term for $\theta$ can be added.
 
 ## The `densityratio` R-package
 
@@ -80,6 +169,9 @@ Implements a suite of methods for density ratio estimation, with:
 - Estimation in `C++`
 - Helper functions for two-sample testing and visualization
 
+## {background-iframe="https://thomvolker.github.io/densityratio/"}
+
+
 ## Example 1: Covariate shift
 
 ```{r}
@@ -87,7 +179,7 @@ Implements a suite of methods for density ratio estimation, with:
 #| echo: false
 
 library(densityratio)
-set.seed(123)
+
 idx <- insurance$region %in% c("southwest", "southeast")
 data <- subset(insurance, select = -region)
 
@@ -118,9 +210,17 @@ dr <- ulsif(
     df_numerator = north_x, 
     df_denominator = south_x, 
     nsigma = 20, 
-    nlambda = 20, 
-    nthreads = 10
+    nlambda = 20,
+    parallel = TRUE,
+    nthreads = 12
 )
+```
+
+## Model output {.smaller}
+
+```{r}
+#| label: dr-summary
+#| echo: true
 
 summary(dr)
 ```
@@ -151,12 +251,24 @@ fit_cs <- xgboost::xgboost(
 )
 ```
 
+
 :::{.fragment}
 ```{r}
+fit_cs <- xgboost::xgboost(
+    x = model.matrix(~., south_x), 
+    y = south$charges,
+    weights = c(weights),
+    learning_rate = 0.2,
+    max_depth = 3,
+    nrounds = 50
+)
 
 fit <- xgboost::xgboost(
     x = model.matrix(~., south_x), 
-    y = south$charges
+    y = south$charges,
+    learning_rate = 0.2,
+    max_depth = 3,
+    nrounds = 50
 )
 
 mse_unw_south <- mean((south$charges - predict(fit, newdata = model.matrix(~.,south_x)))^2)
@@ -173,7 +285,7 @@ tibble::tibble(
     "North (test)" = c(
         sqrt(mse_unw_north), sqrt(mse_w_north)
     )
-) |> knitr::kable()
+) |> knitr::kable(digits = 0)
 ```
 
 :::
@@ -214,6 +326,13 @@ Permutation test: compare observed divergence to distribution of null divergence
 summary(dr, test = TRUE, cl = 12)
 ```
 
+## Future work
+
+- Port to python
+
+- Add additional kernels (Matérn, categorical data)
+
+- Robust density ratio estimation
 
 # Questions / comments?
 

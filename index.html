@@ -240,7 +240,12 @@ r(x) = \frac{p_\text{nu}(x)}{p_\text{de}(x)}
 <li><p>Classification</p></li>
 </ul>
 </section>
-<section id="estimating-the-density-ratio" class="slide level2">
+<section id="section" class="slide level2">
+<h2></h2>
+<p><br></p>
+
+<img data-src="index_files/figure-revealjs/dr-example-1.png" width="960" class="r-stretch"></section>
+<section id="estimating-the-density-ratio" class="slide level2 smaller">
 <h2>Estimating the density ratio</h2>
 <p>Divergence minimization (<a href="https://doi.org/10.1007/s10463-011-0343-8">Sugiyama et al.&nbsp;(2012)</a>)</p>
 <p><span class="math display">\[
@@ -248,14 +253,12 @@ BR_f(r||\hat r) = \int \Big(
     f(r(x)) - f(\hat r(x)) - f'(\hat r(x))(r(x) - \hat r(x))
 \Big) p_\text{de}(x) \text d x
 \]</span></p>
-<p>where <span class="math inline">\(f(t)\)</span> is a differentiable and strictly convex function with derivative <span class="math inline">\(f'(t)\)</span></p>
+<p>where <span class="math inline">\(f(t)\)</span> is differentiable, strictly convex with derivative <span class="math inline">\(f'(t)\)</span></p>
 <ul>
-<li>UKL: <span class="math inline">\(f(t) = t \log t - t\)</span>; Least-squares: <span class="math inline">\(f(t) = (t-1)^2/2\)</span>.</li>
+<li>UKL: <span class="math inline">\(f(t) = t \log t - t\)</span>; least-squares: <span class="math inline">\(f(t) = (t-1)^2/2\)</span>.</li>
 </ul>
 <p>And <span class="math inline">\(\hat r(x)\)</span> a model for the density ratio, typically linear and kernel-based; <span class="math inline">\(\hat r(x) = \psi(x) \theta\)</span>.</p>
-</section>
-<section id="section" class="slide level2" data-background-iframe="https://thomvolker.github.io/densityratio/">
-<h2></h2>
+<p>Optionally, a regularization term for <span class="math inline">\(\theta\)</span> can be added.</p>
 </section>
 <section id="the-densityratio-r-package" class="slide level2">
 <h2>The <code>densityratio</code> R-package</h2>
@@ -266,6 +269,9 @@ BR_f(r||\hat r) = \int \Big(
 <li>Estimation in <code>C++</code></li>
 <li>Helper functions for two-sample testing and visualization</li>
 </ul>
+</section>
+<section id="section-1" class="slide level2" data-background-iframe="https://thomvolker.github.io/densityratio/">
+<h2></h2>
 </section>
 <section id="example-1-covariate-shift" class="slide level2">
 <h2>Example 1: Covariate shift</h2>
@@ -287,25 +293,30 @@ BR_f(r||\hat r) = \int \Big(
 <span id="cb1-2"><a href=""></a>    <span class="at">df_numerator =</span> north_x, </span>
 <span id="cb1-3"><a href=""></a>    <span class="at">df_denominator =</span> south_x, </span>
 <span id="cb1-4"><a href=""></a>    <span class="at">nsigma =</span> <span class="dv">20</span>, </span>
-<span id="cb1-5"><a href=""></a>    <span class="at">nlambda =</span> <span class="dv">20</span>, </span>
-<span id="cb1-6"><a href=""></a>    <span class="at">nthreads =</span> <span class="dv">10</span></span>
-<span id="cb1-7"><a href=""></a>)</span>
-<span id="cb1-8"><a href=""></a></span>
-<span id="cb1-9"><a href=""></a><span class="fu">summary</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-5"><a href=""></a>    <span class="at">nlambda =</span> <span class="dv">20</span>,</span>
+<span id="cb1-6"><a href=""></a>    <span class="at">parallel =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-7"><a href=""></a>    <span class="at">nthreads =</span> <span class="dv">12</span></span>
+<span id="cb1-8"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="model-output" class="slide level2 smaller">
+<h2>Model output</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">summary</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-ulsif(df_numerator = north_x, df_denominator = south_x, nsigma = 20,     nlambda = 20, nthreads = 10)
+ulsif(df_numerator = north_x, df_denominator = south_x, nsigma = 20,     nlambda = 20, parallel = TRUE, nthreads = 12)
 
 Kernel Information:
   Kernel type: Gaussian with L2 norm distances
   Number of kernels: 200
 
-Optimal sigma: 1.70575
-Optimal lambda: 0.6951928
-Optimal kernel weights: num [1:201] 0.0987 0.0305 0.0287 0.0283 0.0143 ...
+Optimal sigma: 0.8396982
+Optimal lambda: 0.1623777
+Optimal kernel weights: num [1:201] 0.584 -0.036 0.0636 -0.0367 0.0377 ...
  
-Pearson divergence between P(nu) and P(de): 0.1091
+Pearson divergence between P(nu) and P(de): 0.1174
 For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
 </div>
 </div>
@@ -313,20 +324,20 @@ For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
 <section id="inspecting-the-density-ratio" class="slide level2">
 <h2>Inspecting the density ratio</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="index_files/figure-revealjs/dr-plot-1.png" width="960" class="r-stretch"></section>
 <section id="xgboost-prediction-with-importance-weights" class="slide level2">
 <h2>xgboost prediction with importance weights</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>weights <span class="ot">&lt;-</span> <span class="fu">predict</span>(dr, <span class="at">newdata =</span> south_x)</span>
-<span id="cb4-2"><a href=""></a></span>
-<span id="cb4-3"><a href=""></a>fit_cs <span class="ot">&lt;-</span> xgboost<span class="sc">::</span><span class="fu">xgboost</span>(</span>
-<span id="cb4-4"><a href=""></a>    <span class="at">x =</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>., south_x), </span>
-<span id="cb4-5"><a href=""></a>    <span class="at">y =</span> south<span class="sc">$</span>charges,</span>
-<span id="cb4-6"><a href=""></a>    <span class="at">weights =</span> <span class="fu">c</span>(weights)</span>
-<span id="cb4-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>weights <span class="ot">&lt;-</span> <span class="fu">predict</span>(dr, <span class="at">newdata =</span> south_x)</span>
+<span id="cb5-2"><a href=""></a></span>
+<span id="cb5-3"><a href=""></a>fit_cs <span class="ot">&lt;-</span> xgboost<span class="sc">::</span><span class="fu">xgboost</span>(</span>
+<span id="cb5-4"><a href=""></a>    <span class="at">x =</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>., south_x), </span>
+<span id="cb5-5"><a href=""></a>    <span class="at">y =</span> south<span class="sc">$</span>charges,</span>
+<span id="cb5-6"><a href=""></a>    <span class="at">weights =</span> <span class="fu">c</span>(weights)</span>
+<span id="cb5-7"><a href=""></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="cell">
@@ -342,13 +353,13 @@ For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">RMSE Unweighted</td>
-<td style="text-align: right;">485.1462</td>
-<td style="text-align: right;">5564.169</td>
+<td style="text-align: right;">3330</td>
+<td style="text-align: right;">5015</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">RMSE Weighted</td>
-<td style="text-align: right;">849.5623</td>
-<td style="text-align: right;">5437.412</td>
+<td style="text-align: right;">3379</td>
+<td style="text-align: right;">4967</td>
 </tr>
 </tbody>
 </table>
@@ -367,8 +378,8 @@ For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
 <section id="density-ratio-estimation-with-dimension-reduction" class="slide level2">
 <h2>Density ratio estimation with dimension reduction</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>dr <span class="ot">&lt;-</span> <span class="fu">spectral</span>(colon, healthy)</span>
-<span id="cb5-2"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>dr <span class="ot">&lt;-</span> <span class="fu">spectral</span>(colon, healthy)</span>
+<span id="cb6-2"><a href=""></a><span class="fu">plot</span>(dr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="index_files/figure-revealjs/spectral-1.png" width="960" class="r-stretch"></section>
@@ -376,7 +387,7 @@ For a two-sample homogeneity test, use 'summary(x, test = TRUE)'.</code></pre>
 <h2>Two-sample testing with density-ratios</h2>
 <p>Permutation test: compare observed divergence to distribution of null divergences under random reallocation</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="fu">summary</span>(dr, <span class="at">test =</span> <span class="cn">TRUE</span>, <span class="at">cl =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a><span class="fu">summary</span>(dr, <span class="at">test =</span> <span class="cn">TRUE</span>, <span class="at">cl =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -395,6 +406,14 @@ Pr(P(nu)=P(de)) &lt; .001
 Bonferroni-corrected for testing with r(x) = P(nu)/P(de) AND r*(x) = P(de)/P(nu).</code></pre>
 </div>
 </div>
+</section>
+<section id="future-work" class="slide level2">
+<h2>Future work</h2>
+<ul>
+<li><p>Port to python</p></li>
+<li><p>Add additional kernels (Matérn, categorical data)</p></li>
+<li><p>Robust density ratio estimation</p></li>
+</ul>
 </section>
 <section id="questions-comments" class="title-slide slide level1 center">
 <h1>Questions / comments?</h1>
